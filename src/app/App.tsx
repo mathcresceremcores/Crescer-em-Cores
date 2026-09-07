@@ -3,22 +3,22 @@ import { supabase } from "../lib/supabaseClient";
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import logoImg from "@/imports/logo.webp";
-import leafImg from "@/imports/leaf.webp";
-import leafImg2 from "@/imports/leaf2.webp";
+import leafImg from "@/imports/leaf.png";
+import leafImg2 from "@/imports/leaf2.png";
 import handprintImg from "@/imports/handprint.webp";
-import jacquelineImg from "@/imports/jacqueline.webp";
-import leafDropImg from "@/imports/leaf-drop.webp";
-import sensoryAreiasImg from "@/imports/sensory-areias.webp";
-import sensoryArrozImg from "@/imports/sensory-arroz.webp";
-import sensoryMassinhaImg from "@/imports/sensory-massinha.webp";
-import sensoryDinoImg from "@/imports/sensory-dino.webp";
-import sensoryCriancaDinoImg from "@/imports/sensory-crianca-dino.webp";
+import jacquelineImg from "@/imports/jacqueline.jpeg";
+import leafDropImg from "@/imports/leaf-drop.png";
+import sensoryAreiasImg from "@/imports/sensory-areias.jpg";
+import sensoryArrozImg from "@/imports/sensory-arroz.jpg";
+import sensoryMassinhaImg from "@/imports/sensory-massinha.jpg";
+import sensoryDinoImg from "@/imports/sensory-dino.jpeg";
+import sensoryCriancaDinoImg from "@/imports/sensory-crianca-dino.jpeg";
 import sensoryTorreImg from "@/imports/sensory-torre.webp";
 import cozinhaNoJardimImg from "@/imports/cozinha-no-jardim.webp";
-import brincarLivreImg from "@/imports/brincar-livre.webp";
-import experienciasTematicasImg from "@/imports/experiencias-tematicas.webp";
-import paintSplashImg from "@/imports/paint-splash.webp";
-import paintCloudImg from "@/imports/paint-cloud.webp";
+import brincarLivreImg from "@/imports/brincar-livre.jpg";
+import experienciasTematicasImg from "@/imports/experiencias-tematicas.jpg";
+import paintSplashImg from "@/imports/paint-splash.png";
+import paintCloudImg from "@/imports/paint-cloud.png";
 import {
   MapPin,
   Clock,
