@@ -1,12 +1,43 @@
-import { useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { createContext, useContext, useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { supabase } from "../lib/supabaseClient";
+
+const DEFAULT_TEXTS: Record<string, string> = {
+  hero_subtitulo: "Oficinas sensoriais para primeira infância, bebês e crianças de 6 meses a 6 anos - experiências que estimulam, encantam e conectam.",
+  sobre_titulo: "Brincar livre, afeto e desenvolvimento integral",
+  sobre_texto: "Experiências ricas por meio do brincar livre, respeitando o tempo da criança e fortalecendo autonomia, vínculo e desenvolvimento.",
+  quemsomos_titulo: "Quem sou eu?",
+  quemsomos_missao: "Minha missão é promover experiências de brincar que respeitem a infância em sua essência, oferecendo ambientes acolhedores, criativos e seguros.",
+  agenda_subtitulo: "Confira quando e onde acontecerão as próximas experiências!",
+  depoimentos_subtitulo: "Compartilhe um elogio ou sugestão com a Crescer em Cores.",
+  contato_titulo: "Vamos conversar?",
+  contato_subtitulo: "Tire suas dúvidas, reserve uma vaga ou saiba mais sobre as oficinas. Estamos aqui com muito carinho!",
+};
+
+const EDITABLE_TEXTS: { key: string; label: string; multiline?: boolean }[] = [
+  { key: "hero_subtitulo", label: "Topo — subtítulo", multiline: true },
+  { key: "sobre_titulo", label: "Sobre — título" },
+  { key: "sobre_texto", label: "Sobre — texto", multiline: true },
+  { key: "quemsomos_titulo", label: "Quem sou eu — título" },
+  { key: "quemsomos_missao", label: "Quem sou eu — missão", multiline: true },
+  { key: "agenda_subtitulo", label: "Agenda — subtítulo", multiline: true },
+  { key: "depoimentos_subtitulo", label: "Depoimentos — subtítulo", multiline: true },
+  { key: "contato_titulo", label: "Contato — título" },
+  { key: "contato_subtitulo", label: "Contato — subtítulo", multiline: true },
+];
+
+type ContentCtx = { content: Record<string, string>; setContent: Dispatch<SetStateAction<Record<string, string>>> };
+const SiteContentContext = createContext<ContentCtx>({ content: {}, setContent: () => {} });
+function useT() {
+  const { content } = useContext(SiteContentContext);
+  return (key: string) => content[key] ?? DEFAULT_TEXTS[key] ?? "";
+}
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import logoImg from "@/imports/logo.webp";
 import leafImg from "@/imports/leaf.png";
 import leafImg2 from "@/imports/leaf2.png";
 import handprintImg from "@/imports/handprint.webp";
-import jacquelineImg from "@/imports/jacqueline.jpeg";
+import jacquelineImg from "@/imports/foto-jacqueline.jpeg";
 import leafDropImg from "@/imports/leaf-drop.png";
 import sensoryAreiasImg from "@/imports/sensory-areias.jpg";
 import sensoryArrozImg from "@/imports/sensory-arroz.jpg";
@@ -767,6 +798,7 @@ function Navbar({ catalogVisibility }: { catalogVisibility: CatalogVisibility })
 
 
 function Hero() {
+  const t = useT();
   return (
     <section id="hero" className="min-h-screen flex flex-col items-center justify-center text-center px-5 sm:px-4 pt-20 pb-16 relative overflow-hidden" style={{ background: "linear-gradient(160deg, #fff8ef 0%, #f6e2c2 50%, #f8edf7 100%)" }}>
       <PaintTexture count={10} colors={["#5aaec8", "#db0e54", "#e89349", "#5ea85b", "#735273"]} />
@@ -779,7 +811,7 @@ function Hero() {
           Crescer em Cores
         </motion.h1>
         <motion.p style={{ fontFamily: "'Nunito', sans-serif" }} className="text-lg sm:text-xl text-[#735273] font-semibold max-w-md" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 1.75 }}>
-          Oficinas sensoriais para primeira infância, bebês e crianças de 6 meses a 6 anos - experiências que estimulam, encantam e conectam.
+          {t("hero_subtitulo")}
         </motion.p>
         <motion.div className="flex w-full flex-col gap-3 justify-center mt-2 sm:w-auto sm:flex-row sm:flex-wrap" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 1.9 }}>
           <a href="#agenda" style={{ fontFamily: "'Baloo 2', cursive" }} className="w-full bg-[#db0e54] text-white px-6 sm:px-7 py-3 rounded-full text-base sm:text-lg font-bold shadow-lg hover:bg-[#bb3f4e] transition-all hover:scale-105 sm:w-auto">Ver Agenda</a>
@@ -796,6 +828,7 @@ function RevealImage({ src, alt, className = "", delay = 0 }: { src: string; alt
 }
 
 function About() {
+  const t = useT();
   const accordionExperiences = [
     {
       icon: "🌿",
@@ -894,8 +927,8 @@ function About() {
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="text-center mb-10 sm:mb-14">
           <span className="inline-block bg-[#f6e2c2] text-[#db0e54] px-4 py-1 rounded-full text-sm font-bold mb-3" style={{ fontFamily: "'Nunito', sans-serif" }}>Sobre as oficinas</span>
-          <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737]">{"Brincar livre, afeto e desenvolvimento integral"}</h2>
-          <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-4 text-[#735273] text-lg max-w-2xl mx-auto">Experiências ricas por meio do brincar livre, respeitando o tempo da criança e fortalecendo autonomia, vínculo e desenvolvimento.</p>
+          <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737]">{t("sobre_titulo")}</h2>
+          <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-4 text-[#735273] text-lg max-w-2xl mx-auto">{t("sobre_texto")}</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-8 items-center mb-14">
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -984,6 +1017,7 @@ function About() {
 }
 
 function QuemSomosSection() {
+  const t = useT();
   const pillars = [
     { icon: "🧸", label: "Brincar como direito", color: "#db0e54", bg: "#fde8f0" },
     { icon: "🌱", label: "Desenvolvimento integral", color: "#3c9b35", bg: "#e9f8e4" },
@@ -1004,7 +1038,7 @@ function QuemSomosSection() {
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 38 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, amount: 0.35 }} transition={{ duration: 0.75 }} className="bg-white/85 backdrop-blur-sm border border-white rounded-[2rem] p-5 sm:p-7 md:p-9 shadow-xl">
           <span className="inline-block bg-[#f6e2c2] text-[#db0e54] px-4 py-1 rounded-full text-sm font-bold mb-3" style={{ fontFamily: "'Nunito', sans-serif" }}>Quem Somos</span>
-          <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737] mb-5">Quem sou eu?</h2>
+          <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737] mb-5">{t("quemsomos_titulo")}</h2>
           <div style={{ fontFamily: "'Nunito', sans-serif" }} className="space-y-4 text-[#735273] leading-relaxed">
             <p>Sou <strong className="text-[#532737]">Jacqueline</strong>, tenho 35 anos, <strong className="text-[#532737]">psicóloga</strong> dedicada à promoção dos direitos humanos e <strong className="text-[#532737]">especialista em aleitamento materno</strong>.</p>
             <p>Com duas décadas de atuação na área da infância e juventude, construí uma <strong className="text-[#532737]">trajetória marcada pelo cuidado, proteção e desenvolvimento integral</strong> de crianças e adolescentes.</p>
@@ -1012,7 +1046,7 @@ function QuemSomosSection() {
           </div>
           <div className="rounded-3xl bg-[#fff8ef] border border-border px-4 sm:px-6 py-5 mt-6">
             <p style={{ fontFamily: "'Baloo 2', cursive" }} className="text-2xl font-extrabold text-[#db0e54]">Minha missão</p>
-            <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-3 text-[#735273] leading-relaxed">Minha missão é promover experiências de brincar que respeitem a infância em sua essência, <strong className="text-[#532737]">oferecendo ambientes acolhedores, criativos e seguros.</strong></p>
+            <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-3 text-[#735273] leading-relaxed">{t("quemsomos_missao")}</p>
           </div>
           <div className="mt-7">
             <p style={{ fontFamily: "'Baloo 2', cursive" }} className="text-xl font-extrabold text-[#532737] mb-4">Meus pilares:</p>
@@ -1039,6 +1073,7 @@ function QuemSomosSection() {
 }
 
 function AgendaSection({ workshops }: { workshops: Workshop[] }) {
+  const t = useT();
   const now = new Date();
   const today = [
     now.getFullYear(),
@@ -1059,7 +1094,7 @@ function AgendaSection({ workshops }: { workshops: Workshop[] }) {
         <div className="text-center mb-12">
           <span className="inline-block bg-[#f6e2c2] text-[#db0e54] px-4 py-1 rounded-full text-sm font-bold mb-3" style={{ fontFamily: "'Nunito', sans-serif" }}>Agenda</span>
           <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737]">Próximas Oficinas</h2>
-          <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-3 text-[#735273] text-lg">Confira quando e onde acontecerão as próximas experiências!</p>
+          <p style={{ fontFamily: "'Nunito', sans-serif" }} className="mt-3 text-[#735273] text-lg">{t("agenda_subtitulo")}</p>
         </div>
         {upcomingWorkshops.length === 0 ? (
           <div className="text-center py-16 text-[#735273]" style={{ fontFamily: "'Nunito', sans-serif" }}><span className="emoji text-5xl">📅</span><p className="mt-4 text-lg font-semibold">Novas datas em breve!</p></div>
@@ -1397,6 +1432,46 @@ function CatalogManager({
   );
 }
 
+function SiteTextsEditor() {
+  const { content, setContent } = useContext(SiteContentContext);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [savedKey, setSavedKey] = useState<string | null>(null);
+  const valueOf = (key: string) => drafts[key] ?? content[key] ?? DEFAULT_TEXTS[key] ?? "";
+  async function save(key: string) {
+    setSavingKey(key);
+    const value = valueOf(key);
+    const { error } = await supabase.from("site_content").upsert({ key, value }, { onConflict: "key" });
+    setSavingKey(null);
+    if (!error) {
+      setContent((c) => ({ ...c, [key]: value }));
+      setSavedKey(key);
+      setTimeout(() => setSavedKey((k) => (k === key ? null : k)), 2000);
+    }
+  }
+  return (
+    <div className="bg-[#fff8ef] border border-border rounded-2xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+      <span style={{ fontFamily: "'Baloo 2', cursive" }} className="font-bold text-[#db0e54] text-lg">Textos do site</span>
+      <p style={{ fontFamily: "'Nunito', sans-serif" }} className="text-sm text-[#735273] mt-1 mb-4">Edite os textos principais. As mudanças aparecem no site depois de salvar.</p>
+      <div className="grid grid-cols-1 gap-4">
+        {EDITABLE_TEXTS.map((f) => (
+          <div key={f.key}>
+            <label style={{ fontFamily: "'Nunito', sans-serif" }} className="block text-sm font-bold text-[#532737] mb-1">{f.label}</label>
+            {f.multiline ? (
+              <textarea value={valueOf(f.key)} onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))} rows={3} maxLength={600} className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#db0e54]" style={{ fontFamily: "'Nunito', sans-serif" }} />
+            ) : (
+              <input value={valueOf(f.key)} onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))} maxLength={200} className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#db0e54]" style={{ fontFamily: "'Nunito', sans-serif" }} />
+            )}
+            <button type="button" onClick={() => save(f.key)} disabled={savingKey === f.key} className="mt-2 rounded-full bg-[#db0e54] px-4 py-1.5 text-sm font-bold text-white transition-colors hover:bg-[#bb3f4e] disabled:opacity-50" style={{ fontFamily: "'Baloo 2', cursive" }}>
+              {savingKey === f.key ? "Salvando…" : savedKey === f.key ? "Salvo ✓" : "Salvar"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function AdminSection({
   workshops,
   setWorkshops,
@@ -1690,6 +1765,7 @@ function AdminSection({
             </div>
           ) : (
             <>
+            <SiteTextsEditor />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
               <div className="bg-[#fff8ef] border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
                 <div className="flex flex-col items-stretch gap-3 mb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -1870,6 +1946,7 @@ function Testimonials({
   testimonials: Testimonial[];
   onAddTestimonial: (testimonial: Omit<Testimonial, "id">) => void | Promise<void>;
 }) {
+  const t = useT();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -1945,7 +2022,7 @@ function Testimonials({
         <span className="inline-block bg-[#f6e2c2] text-[#db0e54] px-4 py-1 rounded-full text-sm font-bold mb-3" style={{ fontFamily: "'Nunito', sans-serif" }}>Depoimentos</span>
         <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737] mb-4">O que as famílias dizem</h2>
         <p style={{ fontFamily: "'Nunito', sans-serif" }} className="text-[#735273] text-lg mb-8">
-          Compartilhe um elogio ou sugestão com a Crescer em Cores.
+          {t("depoimentos_subtitulo")}
         </p>
 
         <button type="button" onClick={() => setShowForm((current) => !current)} className="mb-8 rounded-full bg-[#db0e54] px-6 py-3 font-bold text-white transition-colors hover:bg-[#bb3f4e]" style={{ fontFamily: "'Baloo 2', cursive" }}>
@@ -2098,6 +2175,7 @@ function Testimonials({
 }
 
 function Contact() {
+  const t = useT();
   return (
     <section
       id="contato"
@@ -2110,10 +2188,10 @@ function Contact() {
       <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-6 relative z-10">
         <Heart size={40} className="text-[#e91e8c]" fill="#e91e8c" />
         <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#2d1a0e]">
-          Vamos conversar?
+          {t("contato_titulo")}
         </h2>
         <p style={{ fontFamily: "'Nunito', sans-serif" }} className="text-[#7a5c3a] text-lg max-w-lg">
-          Tire suas dúvidas, reserve uma vaga ou saiba mais sobre as oficinas. Estamos aqui com muito carinho!
+          {t("contato_subtitulo")}
         </p>
         <div className="flex w-full flex-col gap-3 justify-center sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
           <a
@@ -2217,6 +2295,7 @@ export default function App() {
   const [products, setProducts] = useState<CatalogItem[]>([]);
   const [ebooks, setEbooks] = useState<CatalogItem[]>([]);
   const [catalogVisibility, setCatalogVisibility] = useState<CatalogVisibility>({ products: false, ebooks: false });
+  const [content, setContent] = useState<Record<string, string>>({});
   const [routePath, setRoutePath] = useState(() => (typeof window !== "undefined" ? window.location.pathname : "/"));
 
   // Carrega oficinas e depoimentos do Supabase ao abrir o site.
@@ -2235,6 +2314,9 @@ export default function App() {
         .select("*")
         .order("created_at", { ascending: false });
       if (active && ts) setTestimonials(ts as Testimonial[]);
+
+      const { data: sc } = await supabase.from("site_content").select("key,value");
+      if (active && sc) setContent(Object.fromEntries(sc.map((r) => [r.key, r.value])));
 
       const [{ data: catalogRows }, { data: catalogSettings }] = await Promise.all([
         supabase.from("catalog_items").select("*").order("created_at", { ascending: true }),
@@ -2289,6 +2371,7 @@ export default function App() {
   }
 
   return (
+    <SiteContentContext.Provider value={{ content, setContent }}>
     <div className="min-h-screen" style={{ fontFamily: "'Nunito', sans-serif" }}>
       <PlantOverlay />
       <ScrollDecorations />
@@ -2319,6 +2402,7 @@ export default function App() {
         />
       )}
     </div>
+    </SiteContentContext.Provider>
   );
 }
 
