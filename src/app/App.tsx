@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 const DEFAULT_TEXTS: Record<string, string> = {
@@ -7,18 +7,20 @@ const DEFAULT_TEXTS: Record<string, string> = {
   sobre_texto: "Experiências ricas por meio do brincar livre, respeitando o tempo da criança e fortalecendo autonomia, vínculo e desenvolvimento.",
   quemsomos_titulo: "Quem sou eu?",
   quemsomos_missao: "Minha missão é promover experiências de brincar que respeitem a infância em sua essência, oferecendo ambientes acolhedores, criativos e seguros.",
+  quemsomos_bio: "Sou *Jacqueline*, tenho 35 anos, *psicóloga* dedicada à promoção dos direitos humanos e *especialista em aleitamento materno*.\nCom duas décadas de atuação na área da infância e juventude, construí uma *trajetória marcada pelo cuidado, proteção e desenvolvimento integral* de crianças e adolescentes.\nAlém da minha atuação profissional, sou *mãe do Jorge*, papel que fortalece ainda mais meu olhar sensível e comprometido com o bem-estar e o futuro das novas gerações.",
   agenda_subtitulo: "Confira quando e onde acontecerão as próximas experiências!",
   depoimentos_subtitulo: "Compartilhe um elogio ou sugestão com a Crescer em Cores.",
   contato_titulo: "Vamos conversar?",
   contato_subtitulo: "Tire suas dúvidas, reserve uma vaga ou saiba mais sobre as oficinas. Estamos aqui com muito carinho!",
 };
 
-const EDITABLE_TEXTS: { key: string; label: string; multiline?: boolean }[] = [
+const EDITABLE_TEXTS: { key: string; label: string; multiline?: boolean; max?: number }[] = [
   { key: "hero_subtitulo", label: "Topo — subtítulo", multiline: true },
   { key: "sobre_titulo", label: "Sobre — título" },
   { key: "sobre_texto", label: "Sobre — texto", multiline: true },
   { key: "quemsomos_titulo", label: "Quem sou eu — título" },
   { key: "quemsomos_missao", label: "Quem sou eu — missão", multiline: true },
+  { key: "quemsomos_bio", label: "Quem sou eu — texto (use *asterisco* para negrito)", multiline: true, max: 1500 },
   { key: "agenda_subtitulo", label: "Agenda — subtítulo", multiline: true },
   { key: "depoimentos_subtitulo", label: "Depoimentos — subtítulo", multiline: true },
   { key: "contato_titulo", label: "Contato — título" },
@@ -27,6 +29,18 @@ const EDITABLE_TEXTS: { key: string; label: string; multiline?: boolean }[] = [
 
 type ContentCtx = { content: Record<string, string>; setContent: Dispatch<SetStateAction<Record<string, string>>> };
 const SiteContentContext = createContext<ContentCtx>({ content: {}, setContent: () => {} });
+function renderRich(text: string) {
+  return text.split(/\n+/).filter((line) => line.trim() !== "").map((para, pi) => (
+    <p key={pi}>
+      {para.split(/(\*[^*]+\*)/g).map((part, i) =>
+        part.length > 1 && part.startsWith("*") && part.endsWith("*")
+          ? <strong key={i} className="text-[#532737]">{part.slice(1, -1)}</strong>
+          : part
+      )}
+    </p>
+  ));
+}
+
 function useT() {
   const { content } = useContext(SiteContentContext);
   return (key: string) => content[key] ?? DEFAULT_TEXTS[key] ?? "";
@@ -912,6 +926,7 @@ function About() {
   ];
   const [openExperience, setOpenExperience] = useState<number | null>(null);
   const [selectedExperienceImage, setSelectedExperienceImage] = useState<{ src: string; alt: string } | null>(null);
+  const experienceRefs = useRef<(HTMLDivElement | null)[]>([]);
   const benefits = [
     { icon: "🖐️", title: "Coordenação motora", desc: "Movimentos livres e exploração de materiais." },
     { icon: "🧠", title: "Desenvolvimento cognitivo", desc: "Curiosidade, investigação e descobertas." },
@@ -944,8 +959,8 @@ function About() {
                 const isOpen = openExperience === index;
 
                 return (
-                  <motion.div key={item.title} className="overflow-hidden rounded-2xl bg-white border border-border" initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: false, amount: 0.35 }} transition={{ duration: 0.45, delay: index * 0.03 }}>
-                    <button type="button" onClick={() => setOpenExperience(isOpen ? null : index)} aria-expanded={isOpen} className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff8ef]">
+                  <motion.div key={item.title} ref={(el) => { experienceRefs.current[index] = el; }} className="overflow-hidden rounded-2xl bg-white border border-border scroll-mt-24" initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: false, amount: 0.35 }} transition={{ duration: 0.45, delay: index * 0.03 }}>
+                    <button type="button" onClick={() => { const next = isOpen ? null : index; setOpenExperience(next); if (next !== null) window.setTimeout(() => experienceRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }} aria-expanded={isOpen} className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#fff8ef]">
                       <span className="emoji">{item.icon}</span>
                       <span style={{ fontFamily: "'Nunito', sans-serif" }} className="flex-1 font-semibold text-[#532737]">{item.title}</span>
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f6e2c2] text-[#db0e54]">
@@ -1040,9 +1055,7 @@ function QuemSomosSection() {
           <span className="inline-block bg-[#f6e2c2] text-[#db0e54] px-4 py-1 rounded-full text-sm font-bold mb-3" style={{ fontFamily: "'Nunito', sans-serif" }}>Quem Somos</span>
           <h2 style={{ fontFamily: "'Baloo 2', cursive" }} className="text-3xl sm:text-4xl font-extrabold text-[#532737] mb-5">{t("quemsomos_titulo")}</h2>
           <div style={{ fontFamily: "'Nunito', sans-serif" }} className="space-y-4 text-[#735273] leading-relaxed">
-            <p>Sou <strong className="text-[#532737]">Jacqueline</strong>, tenho 35 anos, <strong className="text-[#532737]">psicóloga</strong> dedicada à promoção dos direitos humanos e <strong className="text-[#532737]">especialista em aleitamento materno</strong>.</p>
-            <p>Com duas décadas de atuação na área da infância e juventude, construí uma <strong className="text-[#532737]">trajetória marcada pelo cuidado, proteção e desenvolvimento integral</strong> de crianças e adolescentes.</p>
-            <p>Além da minha atuação profissional, sou <strong className="text-[#532737]">mãe do Jorge</strong>, papel que fortalece ainda mais meu olhar sensível e comprometido com o bem-estar e o futuro das novas gerações.</p>
+            {renderRich(t("quemsomos_bio"))}
           </div>
           <div className="rounded-3xl bg-[#fff8ef] border border-border px-4 sm:px-6 py-5 mt-6">
             <p style={{ fontFamily: "'Baloo 2', cursive" }} className="text-2xl font-extrabold text-[#db0e54]">Minha missão</p>
@@ -1458,7 +1471,7 @@ function SiteTextsEditor() {
           <div key={f.key}>
             <label style={{ fontFamily: "'Nunito', sans-serif" }} className="block text-sm font-bold text-[#532737] mb-1">{f.label}</label>
             {f.multiline ? (
-              <textarea value={valueOf(f.key)} onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))} rows={3} maxLength={600} className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#db0e54]" style={{ fontFamily: "'Nunito', sans-serif" }} />
+              <textarea value={valueOf(f.key)} onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))} rows={5} maxLength={f.max ?? 600} className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#db0e54]" style={{ fontFamily: "'Nunito', sans-serif" }} />
             ) : (
               <input value={valueOf(f.key)} onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))} maxLength={200} className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#db0e54]" style={{ fontFamily: "'Nunito', sans-serif" }} />
             )}
